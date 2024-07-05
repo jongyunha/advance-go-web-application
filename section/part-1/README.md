@@ -2,3 +2,7 @@
 
 ## Part.1 project setup
 
+install gin
+```bash
+$ go get -u github.com/gin-gonic/gin
+```
