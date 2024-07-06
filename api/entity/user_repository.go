@@ -8,6 +8,7 @@ import (
 type UserRepository interface {
 	FindById(ctx context.Context, id int64) (*User, error)
 	Create(ctx context.Context, tx *sqlx.Tx, user *User) error
+	ExistsByEmail(ctx context.Context, email string) (bool, error)
 }
 
 type DefaultUserRepository struct {
@@ -44,4 +45,14 @@ func (r *DefaultUserRepository) Create(ctx context.Context, tx *sqlx.Tx, user *U
 	}
 	user.ID = &id
 	return nil
+}
+
+func (r *DefaultUserRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
+	var count int
+	err := r.db.GetContext(ctx, &count, "SELECT COUNT(*) FROM users WHERE email = ?", email)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }

@@ -7,6 +7,8 @@ import (
 	"github.com/jongyunha/advance-go-web-application/api/converter"
 	"github.com/jongyunha/advance-go-web-application/api/dto"
 	"github.com/jongyunha/advance-go-web-application/api/entity"
+	"github.com/jongyunha/advance-go-web-application/api/errs"
+	"net/http"
 )
 
 type UserService interface {
@@ -29,11 +31,18 @@ func NewDefaultUserService(
 }
 
 func (s *DefaultUserService) Create(ctx context.Context, request *dto.CreateUserRequest) (int64, error) {
+	exists, err := s.userRepository.ExistsByEmail(ctx, request.Email)
+	if err != nil {
+		return 0, errs.NewError(http.StatusInternalServerError, errs.InternalServerError, fmt.Sprintf("failed to check email existence: %v", err))
+	} else if exists {
+		return 0, errs.NewWarnError(http.StatusBadRequest, errs.InvalidRequest, fmt.Sprintf("email %s already exists", request.Email))
+	}
+
 	user := converter.ConvertUserRequestToUserEntity(request)
 	if err := s.transactionManager.Do(func(tx *sqlx.Tx) error {
 		return s.userRepository.Create(ctx, tx, user)
 	}); err != nil {
-		return 0, fmt.Errorf("failed to create user: %w", err)
+		return 0, errs.NewError(http.StatusInternalServerError, errs.InternalServerError, fmt.Sprintf("failed to create user: %v", err))
 	}
 
 	return *user.ID, nil

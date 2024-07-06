@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jongyunha/advance-go-web-application/api/app"
 	"github.com/jongyunha/advance-go-web-application/api/dto"
@@ -24,7 +25,8 @@ type userApi struct {
 func (api *userApi) create(c *gin.Context) {
 	var request *dto.CreateUserRequest
 	if err := c.BindJSON(&request); err != nil {
-		err = errs.NewWarnError(http.StatusBadRequest, errs.InvalidRequest, "invalid request")
+		errMsg := fmt.Sprintf("failed to bind request, err: %v", err)
+		err = errs.NewWarnError(http.StatusBadRequest, errs.InvalidRequest, errMsg)
 		_ = c.Error(err)
 		return
 	}
