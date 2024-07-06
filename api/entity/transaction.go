@@ -22,7 +22,11 @@ func (s *SqlxTransactionManager) Do(fn func(tx *sqlx.Tx) error) error {
 
 	err = fn(tx)
 	if err != nil {
-		return tx.Rollback()
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+
+		return err
 	}
 
 	return tx.Commit()

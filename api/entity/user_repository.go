@@ -29,6 +29,19 @@ func (r *DefaultUserRepository) FindById(ctx context.Context, id int64) (*User, 
 }
 
 func (r *DefaultUserRepository) Create(ctx context.Context, tx *sqlx.Tx, user *User) error {
-	_, err := tx.NamedExecContext(ctx, "INSERT INTO users (email, username, password) VALUES (:email, :username, :password)", user)
-	return err
+	query := "INSERT INTO users (email, username, password) VALUES (:email, :username, :password)"
+
+	// Execute the query and retrieve the result
+	result, err := tx.NamedExecContext(ctx, query, user)
+	if err != nil {
+		return err
+	}
+
+	// Get the generated ID and bind it to the user struct
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	user.ID = &id
+	return nil
 }

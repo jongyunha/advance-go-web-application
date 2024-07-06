@@ -22,10 +22,23 @@ type userApi struct {
 }
 
 func (api *userApi) create(c *gin.Context) {
-	var request dto.CreateUserRequest
+	var request *dto.CreateUserRequest
 	if err := c.BindJSON(&request); err != nil {
 		err = errs.NewWarnError(http.StatusBadRequest, errs.InvalidRequest, "invalid request")
 		_ = c.Error(err)
 		return
 	}
+
+	id, err := api.app.Service.UserService.Create(c.Request.Context(), request)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	response := dto.SuccessResponse[int64]{
+		Data:    id,
+		Message: "user created successfully",
+	}
+
+	c.JSON(http.StatusOK, response)
 }
