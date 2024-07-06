@@ -8,12 +8,7 @@ import (
 
 func Serve(app *app.App) error {
 	router := gin.Default()
-
-	router.Handle("GET", "/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-
+	router.Use(ErrorHandlingMiddleware())
+	bindUserApi(*app, router)
 	return router.Run(fmt.Sprintf("%s:%s", app.GetConfig().Host, app.GetConfig().Port))
 }

@@ -7,6 +7,7 @@ import (
 
 type UserRepository interface {
 	FindById(ctx context.Context, id int64) (*User, error)
+	Create(ctx context.Context, tx *sqlx.Tx, user *User) error
 }
 
 type DefaultUserRepository struct {
@@ -25,4 +26,9 @@ func (r *DefaultUserRepository) FindById(ctx context.Context, id int64) (*User, 
 	}
 
 	return &user, nil
+}
+
+func (r *DefaultUserRepository) Create(ctx context.Context, tx *sqlx.Tx, user *User) error {
+	_, err := tx.NamedExecContext(ctx, "INSERT INTO users (email, username, password) VALUES (:email, :username, :password)", user)
+	return err
 }
