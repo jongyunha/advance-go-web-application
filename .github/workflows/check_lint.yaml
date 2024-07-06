@@ -3,7 +3,7 @@ name: lint check for backend
 on:
   pull_request:
     paths:
-      - apis/**
+      - api/**
     types: [opened, synchronize, reopened, edited]
 
 jobs:
