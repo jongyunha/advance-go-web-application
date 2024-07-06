@@ -9,6 +9,5 @@ func ConvertUserRequestToUserEntity(request *dto.CreateUserRequest) *entity.User
 	return &entity.User{
 		Email:    request.Email,
 		UserName: request.UserName,
-		Password: request.Password,
 	}
 }

@@ -39,6 +39,11 @@ func (s *DefaultUserService) Create(ctx context.Context, request *dto.CreateUser
 	}
 
 	user := converter.ConvertUserRequestToUserEntity(request)
+	err = user.HashPassword(request.Password)
+	if err != nil {
+		return 0, errs.NewError(http.StatusInternalServerError, errs.InternalServerError, fmt.Sprintf("failed to hash password: %v", err))
+	}
+
 	if err := s.transactionManager.Do(func(tx *sqlx.Tx) error {
 		return s.userRepository.Create(ctx, tx, user)
 	}); err != nil {
