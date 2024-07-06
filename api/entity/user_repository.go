@@ -7,6 +7,8 @@ import (
 
 type UserRepository interface {
 	FindById(ctx context.Context, id int64) (*User, error)
+	Create(ctx context.Context, tx *sqlx.Tx, user *User) error
+	ExistsByEmail(ctx context.Context, email string) (bool, error)
 }
 
 type DefaultUserRepository struct {
@@ -25,4 +27,32 @@ func (r *DefaultUserRepository) FindById(ctx context.Context, id int64) (*User, 
 	}
 
 	return &user, nil
+}
+
+func (r *DefaultUserRepository) Create(ctx context.Context, tx *sqlx.Tx, user *User) error {
+	query := "INSERT INTO users (email, username, password) VALUES (:email, :username, :password)"
+
+	// Execute the query and retrieve the result
+	result, err := tx.NamedExecContext(ctx, query, user)
+	if err != nil {
+		return err
+	}
+
+	// Get the generated ID and bind it to the user struct
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	user.ID = &id
+	return nil
+}
+
+func (r *DefaultUserRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
+	var count int
+	err := r.db.GetContext(ctx, &count, "SELECT COUNT(*) FROM users WHERE email = ?", email)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }
