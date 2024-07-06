@@ -3,7 +3,7 @@ name: lint check for backend
 on:
   pull_request:
     paths:
-      - apis/**
+      - api/**
     types: [opened, synchronize, reopened, edited]
 
 jobs:
@@ -19,6 +19,6 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.54.2
-          working-directory: ${{ github.workspace }}/apis
+          working-directory: ${{ github.workspace }}/api
           args: --timeout 3m --verbose
           only-new-issues: true
