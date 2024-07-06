@@ -11,4 +11,10 @@ const (
 
 	// 400
 	InvalidRequest ErrorCode = 400000
+
+	// 403
+	Forbidden ErrorCode = 403000
+
+	// 401
+	Unauthorized ErrorCode = 401000
 )
