@@ -6,8 +6,10 @@ import (
 )
 
 type App struct {
-	db     *sqlx.DB
-	config *core.AppConfig
+	db         *sqlx.DB
+	config     *core.AppConfig
+	Service    *Services
+	Repository *Repositories
 }
 
 func (a *App) GetConfig() *core.AppConfig {
@@ -30,8 +32,13 @@ func New(stage core.Stage) (*App, error) {
 		return nil, err
 	}
 
-	return &App{
+	newApp := &App{
 		db:     db,
 		config: appConfig,
-	}, nil
+	}
+
+	newApp.Repository = NewRepositories(*newApp)
+	newApp.Service = NewServices(*newApp)
+
+	return newApp, nil
 }
