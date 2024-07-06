@@ -1,4 +1,4 @@
-package config
+package core
 
 import (
 	"fmt"
@@ -19,6 +19,8 @@ const (
 )
 
 type AppConfig struct {
+	Host  string
+	Port  string
 	Stage Stage
 	*DbConfig
 }
@@ -83,6 +85,8 @@ func NewAppConfig(stage Stage) (*AppConfig, error) {
 		DbConnMaxIdleTime: dbConnMaxIdleTimeToInt,
 	}
 	return &AppConfig{
+		Host:     os.Getenv("HOST"),
+		Port:     os.Getenv("PORT"),
 		Stage:    stage,
 		DbConfig: dbConfig,
 	}, nil

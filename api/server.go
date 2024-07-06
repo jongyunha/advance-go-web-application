@@ -1,28 +1,25 @@
 package main
 
 import (
-	"github.com/jmoiron/sqlx"
-	"github.com/jongyunha/advance-go-web-application/api/config"
+	"flag"
+	"github.com/jongyunha/advance-go-web-application/api/apis"
+	"github.com/jongyunha/advance-go-web-application/api/app"
+	"github.com/jongyunha/advance-go-web-application/api/core"
 	"go.uber.org/zap"
 	"log"
 )
 
 func main() {
-	err := config.InitLogger(config.Development)
+	var stage string
+	flag.StringVar(&stage, "stage", "stage of the application", "development")
+
+	application, err := app.New(core.Stage(stage))
 	if err != nil {
-		log.Fatalf("failed to initialize logger: %v", err)
+		log.Fatalf("failed to create app: %v", err)
 	}
 
-	appConfig, err := config.NewAppConfig(config.Development)
+	err = apis.Serve(application)
 	if err != nil {
-		config.Logger.Fatal("failed to load app config", zap.Error(err))
+		core.Logger.Error("failed to serve", zap.Error(err))
 	}
-	db, err := config.GetDB(appConfig.DbConfig)
-	if err != nil {
-		config.Logger.Fatal("failed to connect to database", zap.Error(err))
-	}
-
-	defer func(db *sqlx.DB) {
-		_ = db.Close()
-	}(db)
 }
